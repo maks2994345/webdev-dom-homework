@@ -5,44 +5,9 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="styles.css" />
   </head>
-
   <body>
     <div class="container">
       <ul id="comment-ul" class="comments">
-        <!-- <li class="comment">
-          <div class="comment-header">
-            <div>Глеб Фокин</div>
-            <div>12.02.22 12:18</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Это будет первый комментарий на этой странице
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">3</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-        <li class="comment">
-          <div class="comment-header">
-            <div>Варвара Н.</div>
-            <div>13.02.22 19:22</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Мне нравится как оформлена эта страница! ❤
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">75</span>
-              <button class="like-button -active-like"></button>
-            </div>
-          </div>
-        </li> -->
       </ul>
       <div class="add-form">
         <input id="name-input" value=""
@@ -104,6 +69,19 @@
       }
     }
 
+    const clickOnComment = () => {
+      const answerComments = document.querySelectorAll(".comment-text")
+      for(const answerComment of answerComments){
+        answerComment.addEventListener("click", () => {
+         const index = answerComment.dataset.comment;
+         const commentator = commentators[index];
+         const commentText = `${commentator.comment}\n${commentator.name}`;
+         commentElementInput.value = `> ${commentText}, `;
+        });
+      }
+    }
+    clickOnComment();
+
     const renderCommentators = () => {
       const commenntatorsHtml = commentators.map((commentator, index) => {
         return `<li class="comment">
@@ -112,7 +90,7 @@
             <div>${commentator.date}</div>
           </div>
           <div class="comment-body">
-            <div  class="comment-text">
+            <div class="comment-text" data-comment="${index}">
               ${commentator.comment}
             </div>
           </div>
@@ -127,6 +105,7 @@
       
       ulElement.innerHTML = commenntatorsHtml;
       initLikeListener();
+      clickOnComment();
     };
     renderCommentators();
 
@@ -142,12 +121,12 @@
 
           return commentElementInput.classList.add('error');
         }
-
+    
         const dateElement = new Date();
 
         let day = dateElement.getDate();
-        var month = dateElement.getMonth() + 1; 
-        var year = dateElement.getFullYear() % 100;
+        let month = dateElement.getMonth() + 1; 
+        let year = dateElement.getFullYear() % 100;
 
         let hours = dateElement.getHours();
         let minutes = dateElement.getMinutes();
@@ -157,8 +136,15 @@
         let formattedDateTime = formattedDate + ' ' + formattedTime;
 
         commentators.push({
-          name: nameElementInput.value,
-          comment: commentElementInput.value,
+          name: nameElementInput.value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;"),
+          comment: commentElementInput.value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll('"', "&quot;"),
           date: formattedDateTime,
           likes: 0,
           isLiked: false
