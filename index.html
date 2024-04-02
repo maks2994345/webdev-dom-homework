@@ -34,7 +34,21 @@
     const nameElementInput = document.getElementById("name-input");
     const commentElementInput = document.getElementById("comment-input");
 
-    const commentators = [
+    Date.prototype.format = function (){
+      
+      let day = this.getDate();
+      let month = this.getMonth() + 1; 
+      let year = this.getFullYear() % 100;
+
+      let hours = this.getHours();
+      let minutes = this.getMinutes();
+
+      let formattedDate = (day < 10 ? '0' : '') + day + '.' + (month < 10 ? '0' : '') + month + '.' + year;
+      let formattedTime = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes;
+      return formattedDate + ' ' + formattedTime;
+      }
+
+    let commentators = [
       {
         name: 'Глеб Фокин',
         comment: 'Это будет первый комментарий на этой странице',
@@ -50,6 +64,21 @@
         isLiked: true
       }
     ];
+
+    fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments")
+    .then((response) => response.json())
+    .then((responseData) => {
+        commentators = responseData.comments.map((comment) => {
+          return {
+          name: comment.author.name,
+          comment: comment.text,
+          date: new Date(comment.date).format(),
+          likes: comment.likes,
+          isLiked: comment.isLiked,
+        }
+        })
+        renderCommentators()
+      })
 
     const initLikeListener = () => {
       const likeButtons = document.querySelectorAll(".like-button");
@@ -121,20 +150,7 @@
 
           return commentElementInput.classList.add('error');
         }
-    
-        const dateElement = new Date();
-
-        let day = dateElement.getDate();
-        let month = dateElement.getMonth() + 1; 
-        let year = dateElement.getFullYear() % 100;
-
-        let hours = dateElement.getHours();
-        let minutes = dateElement.getMinutes();
-
-        let formattedDate = (day < 10 ? '0' : '') + day + '.' + (month < 10 ? '0' : '') + month + '.' + year;
-        let formattedTime = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes;
-        let formattedDateTime = formattedDate + ' ' + formattedTime;
-
+       
         commentators.push({
           name: nameElementInput.value
           .replaceAll("&", "&amp;")
@@ -145,10 +161,32 @@
           .replaceAll("&", "&amp;")
           .replaceAll("<", "&lt;")
           .replaceAll('"', "&quot;"),
-          date: formattedDateTime,
+          date: new Date().format(),
           likes: 0,
           isLiked: false
         });
+
+        fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments", {
+          method: "POST",
+          body: JSON.stringify({
+            text: commentElementInput.value,
+            name: nameElementInput.value
+          }),
+        })
+        .then((response) => response.json())
+        .then((responseData) => {
+
+        // commentators = responseData.comments.map((comment) => {
+        //   return {
+        //   name: comment.author.name,
+        //   comment: comment.text,
+        //   date: new Date(comment.date).format(),
+        //   likes: comment.likes,
+        //   isLiked: comment.isLiked,
+        // }
+        // })
+        renderCommentators()
+      })
 
         document.getElementById("name-input").value = '';
         document.getElementById("comment-input").value = '';
