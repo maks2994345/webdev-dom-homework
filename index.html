@@ -1,119 +1,108 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Проект "Комменты"</title>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="container">
-      <ul id="comment-ul" class="comments">
-      </ul>
-      <div class="add-form">
-        <input id="name-input" value=""
-          type="text"
-          class="add-form-name"
-          placeholder="Введите ваше имя"
-        />
-        <textarea id="comment-input" value=""
-          type="textarea"
-          class="add-form-text"
-          placeholder="Введите ваш коментарий"
-          rows="4"
-        ></textarea>
-        <div class="add-form-row">
-          <button id="button-click" class="add-form-button">Написать</button>
-        </div>
+
+<head>
+  <title>Проект "Комменты"</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="container">
+    <p class="commentators__loader">Комментарии загружаются...</p>
+    <ul id="comment-ul" class="comments">
+    </ul>
+    <p class="loader">Комментарий загружается...</p>
+    <div class="add-form">
+      <input id="name-input" value="" type="text" class="add-form-name" placeholder="Введите ваше имя" />
+      <textarea id="comment-input" value="" type="textarea" class="add-form-text" placeholder="Введите ваш коментарий"
+        rows="4"></textarea>
+      <div class="add-form-row">
+        <button id="button-click" class="add-form-button">Написать</button>
       </div>
     </div>
-  </body>
+  </div>
+</body>
 
-  <script>
-    const buttonElement = document.getElementById("button-click");
-    const ulElement = document.getElementById("comment-ul");
-    const nameElementInput = document.getElementById("name-input");
-    const commentElementInput = document.getElementById("comment-input");
+<script>
+  const buttonElement = document.getElementById("button-click");
+  const ulElement = document.getElementById("comment-ul");
+  const nameElementInput = document.getElementById("name-input");
+  const commentElementInput = document.getElementById("comment-input");
+  const formElement = document.querySelector(".add-form");
+  const loaderElement = document.querySelector(".loader");
+  const commentLoaderElement = document.querySelector(".commentators__loader");
 
-    Date.prototype.format = function (){
-      
-      let day = this.getDate();
-      let month = this.getMonth() + 1; 
-      let year = this.getFullYear() % 100;
+  Date.prototype.format = function () {
 
-      let hours = this.getHours();
-      let minutes = this.getMinutes();
+    let day = this.getDate();
+    let month = this.getMonth() + 1;
+    let year = this.getFullYear() % 100;
 
-      let formattedDate = (day < 10 ? '0' : '') + day + '.' + (month < 10 ? '0' : '') + month + '.' + year;
-      let formattedTime = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes;
-      return formattedDate + ' ' + formattedTime;
-      }
+    let hours = this.getHours();
+    let minutes = this.getMinutes();
 
-    let commentators = [
-      {
-        name: 'Глеб Фокин',
-        comment: 'Это будет первый комментарий на этой странице',
-        date: '12.02.22 12:18',
-        likes: 3,
-        isLiked: false
-      },
-      {
-        name: 'Варвара Н.',
-        comment: 'Мне нравится как оформлена эта страница! ❤',
-        date: '13.02.22 19:22',
-        likes: 75,
-        isLiked: true
-      }
-    ];
+    let formattedDate = (day < 10 ? '0' : '') + day + '.' + (month < 10 ? '0' : '') + month + '.' + year;
+    let formattedTime = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes;
+    return formattedDate + ' ' + formattedTime;
+  }
 
-    fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments")
-    .then((response) => response.json())
-    .then((responseData) => {
+  let commentators = [];
+
+  function getComments() {
+    return fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments")
+      .then((response) => response.json())
+      .then((responseData) => {
         commentators = responseData.comments.map((comment) => {
           return {
-          name: comment.author.name,
-          comment: comment.text,
-          date: new Date(comment.date).format(),
-          likes: comment.likes,
-          isLiked: comment.isLiked,
-        }
+            name: comment.author.name,
+            comment: comment.text,
+            date: new Date(comment.date).format(),
+            likes: comment.likes,
+            isLiked: comment.isLiked,
+          }
         })
         renderCommentators()
+        commentLoaderElement.style.display = "none";
       })
+  }
 
-    const initLikeListener = () => {
-      const likeButtons = document.querySelectorAll(".like-button");
-      for(const likeButton of likeButtons){
-        likeButton.addEventListener("click", () =>{
-          const index = likeButton.dataset.index;
-          const comment = commentators[index];
-          if(comment.isLiked){
-            comment.likes -= 1;
-            comment.isLiked = false;
-          } else {
-            comment.likes += 1;
-            comment.isLiked = true;
-          }
-          renderCommentators();
-        });
-      }
+  getComments()
+
+  const initLikeListener = () => {
+    const likeButtons = document.querySelectorAll(".like-button");
+    for (const likeButton of likeButtons) {
+      likeButton.addEventListener("click", () => {
+        const index = likeButton.dataset.index;
+        const comment = commentators[index];
+        if (comment.isLiked) {
+          comment.likes -= 1;
+          comment.isLiked = false;
+        } else {
+          comment.likes += 1;
+          comment.isLiked = true;
+        }
+        renderCommentators();
+      });
     }
+  }
 
-    const clickOnComment = () => {
-      const answerComments = document.querySelectorAll(".comment-text")
-      for(const answerComment of answerComments){
-        answerComment.addEventListener("click", () => {
-         const index = answerComment.dataset.comment;
-         const commentator = commentators[index];
-         const commentText = `${commentator.comment}\n${commentator.name}`;
-         commentElementInput.value = `> ${commentText}, `;
-        });
-      }
+  const clickOnComment = () => {
+    const answerComments = document.querySelectorAll(".comment-text")
+    for (const answerComment of answerComments) {
+      answerComment.addEventListener("click", () => {
+        const index = answerComment.dataset.comment;
+        const commentator = commentators[index];
+        const commentText = `${commentator.comment}\n${commentator.name}`;
+        commentElementInput.value = `> ${commentText}, `;
+      });
     }
-    clickOnComment();
+  }
+  clickOnComment();
 
-    const renderCommentators = () => {
-      const commenntatorsHtml = commentators.map((commentator, index) => {
-        return `<li class="comment">
+  const renderCommentators = () => {
+    const commenntatorsHtml = commentators.map((commentator, index) => {
+      return `<li class="comment">
           <div class="comment-header">
             <div>${commentator.name}</div>
             <div>${commentator.date}</div>
@@ -126,63 +115,56 @@
           <div class="comment-footer">
             <div class="likes">
               <span class="likes-counter">${commentator.likes}</span>
-              <button id="button-like" data-index="${index}" class="like-button${commentator.isLiked ? " -active-like": ""}"></button>
+              <button id="button-like" data-index="${index}" class="like-button${commentator.isLiked ? " -active-like" : ""}"></button>
             </div>
           </div>
         </li>`;
-      }).join("");
-      
-      ulElement.innerHTML = commenntatorsHtml;
-      initLikeListener();
-      clickOnComment();
-    };
+    }).join("");
+
+    ulElement.innerHTML = commenntatorsHtml;
+    initLikeListener();
+    clickOnComment();
+  };
+  renderCommentators();
+
+  buttonElement.addEventListener("click", () => {
+    nameElementInput.classList.remove('error');
+    commentElementInput.classList.remove('error');
+
+    if (nameElementInput.value.trim() === '') {
+
+      return nameElementInput.classList.add('error');
+
+    } else if (commentElementInput.value === "") {
+
+      return commentElementInput.classList.add('error');
+    }
+
+    loaderElement.style.display = "block";
+    formElement.style.display = "none";
+
+    fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments", {
+      method: "POST",
+      body: JSON.stringify({
+        text: commentElementInput.value,
+        name: nameElementInput.value,
+
+      }),
+    })
+      .then((response) => response.json())
+      .then(() => {
+        getComments()
+          .then(() => {
+            loaderElement.style.display = "none";
+            formElement.style.display = "flex";
+          })
+      })
+
+    document.getElementById("name-input").value = '';
+    document.getElementById("comment-input").value = '';
+
     renderCommentators();
+  });
+</script>
 
-    buttonElement.addEventListener("click", () => {
-        nameElementInput.classList.remove('error');
-        commentElementInput.classList.remove('error');
-    
-        if (nameElementInput.value.trim() === ''){
-
-          return nameElementInput.classList.add('error');
-
-        } else if (commentElementInput.value === ""){
-
-          return commentElementInput.classList.add('error');
-        }
-
-        fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments", {
-          method: "POST",
-          body: JSON.stringify({
-            text: commentElementInput.value,
-            name: nameElementInput.value,
-
-          }),
-        })
-        .then((response) => response.json())
-        .then((responseData) => {
-        renderCommentators()
-      })
-
-      fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments")
-        .then((response) => response.json())
-        .then((responseData) => {
-        commentators = responseData.comments.map((comment) => {
-          return {
-          name: comment.author.name,
-          comment: comment.text,
-          date: new Date(comment.date).format(),
-          likes: comment.likes,
-          isLiked: comment.isLiked,
-        }
-        })
-        renderCommentators()
-      })
-
-        document.getElementById("name-input").value = '';
-        document.getElementById("comment-input").value = '';
-
-        renderCommentators();
-    });
-  </script>
 </html>
