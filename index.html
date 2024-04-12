@@ -51,7 +51,9 @@
 
   function getComments() {
     return fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments")
-      .then((response) => response.json())
+      .then((response) 
+        response.json()
+      )
       .then((responseData) => {
         commentators = responseData.comments.map((comment) => {
           return {
@@ -131,13 +133,11 @@
     nameElementInput.classList.remove('error');
     commentElementInput.classList.remove('error');
 
-    if (nameElementInput.value.trim() === '') {
+    if (nameElementInput.value.trim() === '' || commentElementInput.value.trim() === '') {
 
-      return nameElementInput.classList.add('error');
+      return nameElementInput.classList.add('error'),
+        commentElementInput.classList.add('error');
 
-    } else if (commentElementInput.value === "") {
-
-      return commentElementInput.classList.add('error');
     }
 
     loaderElement.style.display = "block";
@@ -148,21 +148,39 @@
       body: JSON.stringify({
         text: commentElementInput.value,
         name: nameElementInput.value,
-
+        forceError: true
       }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === 400) {
+          alert('Минимальное количество имени и комментария 3 символа');
+          throw new Error('Некорректные данные');
+        }
+
+        if (response.status === 500) {
+          alert('Сервер не работает');
+          throw new Error('Ошибка сервера')
+        }
+
+        else {
+          return response.json()
+        }
+      })
       .then(() => {
         getComments()
           .then(() => {
             loaderElement.style.display = "none";
             formElement.style.display = "flex";
+            document.getElementById("name-input").value = '';
+            document.getElementById("comment-input").value = '';
           })
       })
-
-    document.getElementById("name-input").value = '';
-    document.getElementById("comment-input").value = '';
-
+      .catch((error) => {
+        loaderElement.style.display = "none";
+        formElement.style.display = "flex";
+        console.log('Что-то пошло не так...');
+        console.log(error);
+      })
     renderCommentators();
   });
 </script>
