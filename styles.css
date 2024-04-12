@@ -141,3 +141,7 @@ body {
   .error {
     background-color: #c8c7c7;
   }
+
+  .loader{
+    display: none;
+  }
