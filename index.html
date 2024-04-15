@@ -52,7 +52,7 @@
   function getComments() {
     return fetch("https://wedev-api.sky.pro/api/v1/maksim-ananin/comments")
       .then((response) => {
-        response.json()
+        return response.json()
       })
       .then((responseData) => {
         commentators = responseData.comments.map((comment) => {
