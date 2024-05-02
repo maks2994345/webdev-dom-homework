@@ -11,6 +11,7 @@ export function buttonClick() {
     nameElementInput.classList.remove('error');
     commentElementInput.classList.remove('error');
 
+
     if (nameElementInput.value.trim() === '' || commentElementInput.value.trim() === '') {
 
         nameElementInput.classList.add('error'),
