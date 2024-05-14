@@ -2,6 +2,7 @@
 export const API = {
     apiLink: "https://wedev-api.sky.pro/api/v2/maksim-ananin/comments",
     userLink: "https://wedev-api.sky.pro/api/user/login",
+    user: null,
 
     token: "",
 
@@ -36,7 +37,6 @@ export const API = {
             body: JSON.stringify({
                 text: text,
                 name: name,
-                forceError: false,
             }),
             headers: {
                 Authorization: `Bearer ${this.token}`,
@@ -57,7 +57,7 @@ export const API = {
             })
     },
 
-    login(login, password) {
+    login( {login, password} ) {
         let status = 0
 
         return fetch(this.userLink, {
@@ -65,7 +65,6 @@ export const API = {
             body: JSON.stringify({
                 login,
                 password,
-                forceError: false,
             }),
         })
             .then((response) => {
@@ -78,7 +77,8 @@ export const API = {
                     alert(data.error)
                     throw new Error(data.error)
                 }
-
+                this.user = data
+                this.token = data.user.token
                 return data
             })
     },

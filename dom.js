@@ -1,4 +1,5 @@
 import { API } from "./api.js"
+import { renderLogin } from "./login.js"
 
 
 export const DOM = {
@@ -9,6 +10,7 @@ export const DOM = {
     formElement: document.querySelector(".add-form"),
     loaderElement: document.querySelector(".loader"),
     commentLoaderElement: document.querySelector(".commentators__loader"),
+    appContainer: document.querySelector("#app"),
 
     commentators: [],
 
@@ -61,73 +63,90 @@ export const DOM = {
     },
 
     handleButtonClick() {
-        if (!this.buttonElement)
+        const buttonElement = document.getElementById("button-click")
+        const nameElementInput = document.getElementById("name-input")
+        const commentElementInput = document.getElementById("comment-input")
+        const loaderElement = document.querySelector(".loader")
+        const formElement = document.querySelector(".add-form")
+
+        if (!buttonElement)
             return
 
-        this.buttonElement.addEventListener("click", () => {
-            this.nameElementInput.classList.remove('error')
-            this.commentElementInput.classList.remove('error')
+        buttonElement.addEventListener("click", () => {
+            nameElementInput.classList.remove('error')
+            commentElementInput.classList.remove('error')
 
-            if (this.nameElementInput.value.trim() === '' || this.commentElementInput.value.trim() === '') {
-                this.nameElementInput.classList.add('error')
-                this.commentElementInput.classList.add('error')
+            if (commentElementInput.value.trim() === '') {
+                commentElementInput.classList.add('error')
                 return
             }
 
-            this.loaderElement.style.display = "block"
-            this.formElement.style.display = "none"
+            loaderElement.style.display = "block"
+            formElement.style.display = "none"
 
-            API.postComment(this.nameElementInput.value, this.commentElementInput.value)
+            API.postComment(nameElementInput.value, commentElementInput.value)
                 .then(() => {
                     this.getComments()
                         .then(() => {
-                            this.loaderElement.style.display = "none"
-                            this.formElement.style.display = "flex"
+                            loaderElement.style.display = "none"
+                            formElement.style.display = "flex"
 
-                            document.getElementById("name-input").value = ''
                             document.getElementById("comment-input").value = ''
                         })
                 })
                 .catch(() => {
-                    this.loaderElement.style.display = "none"
-                    this.formElement.style.display = "flex"
+                    loaderElement.style.display = "none"
+                    formElement.style.display = "flex"
 
                     console.log('Что-то пошло не так...')
                 })
         })
     },
 
-    renderCommentators() {
-        // const commentatorsHtml = this.commentators.map((commentator, index) => {
-        //     return `<li class="comment">
-        //         <div class="comment-header">
-        //             <div>${commentator.name}</div>
-        //             <div>${commentator.date}</div>
-        //         </div>
-        //         <div class="comment-body">
-        //             <div class="comment-text" data-comment="${index}">
-        //                 ${commentator.comment}
-        //             </div>
-        //         </div>
-        //         <div class="comment-footer">
-        //             <div class="likes">
-        //                 <span class="likes-counter">${commentator.likes}</span>
-        //                 <button id="button-like" data-index="${index}" class="like-button${commentator.isLiked ? " -active-like" : ""}"></button>
-        //             </div>
-        //         </div>
-        //     </li>`
-        // }).join("")
-        //
-        // this.ulElement.innerHTML = commentatorsHtml
-        // this.initLikeListener()
-        // this.clickOnComment()
+    handleAuthButtonClick(){
+       const authButton =  document.getElementById("auth-button")
+       authButton.addEventListener("click", (event) => {
+        event.preventDefault()
+        renderLogin()
+       })
 
-        const appElement = document.getElementById('app')
-        const ulElement = document.getElementById("comment-ul")
+    },
+
+    renderApp() {
+        this.appContainer.innerHTML = `
+        <p class="commentators__loader">Комментарии загружаются...</p>
+        <ul id="comment-ul" class="comments"></ul>
+        <p class="loader">Комментарий загружается...</p>
+        <div class="form">
+
+        </div>`
+        this.getComments()
+            .then(() => {
+                this.renderForm()
+            })
+    },
+
+    renderForm() {
+        const form = document.querySelector(".form")
+        form.innerHTML = API.user ? `<div class="add-form">
+        <input id="name-input" value="Максим (Админ)" type="text" readonly class="add-form-name" placeholder="Введите ваше имя" />
+        <textarea id="comment-input" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
+        <div class="add-form-row">
+            <button id="button-click" class="add-form-button">Написать</button>
+        </div>
+    </div>` : `<div class="auth">
+    Чтобы оставить комментарий, вам нужно <button class="auth-button" id="auth-button">Авторизоваться</button>
+     </div>`
+        API.user ? this.handleButtonClick() : this.handleAuthButtonClick()
+    },
+
+    renderCommentators() {
+
+        const listElement = document.getElementById('comment-ul')
         const commenntatorsHtml = this.commentators.map((commentator, index) => {
             return `<li class="comment">
               <div class="comment-header">
-                <div>${commentator.name}</div>
+                <div>Максим (${commentator.name})</div>
                 <div>${commentator.date}</div>
               </div>
               <div class="comment-body">
@@ -144,17 +163,8 @@ export const DOM = {
             </li>`
         }).join("")
 
-        appElement.innerHTML = `
-            <p class="commentators__loader">Комментарии загружаются...</p>
-            <ul id="comment-ul" class="comments">${commenntatorsHtml}</ul>
-            <p class="loader">Комментарий загружается...</p>
-            <div class="add-form">
-                <input id="name-input" value="" type="text" class="add-form-name" placeholder="Введите ваше имя" />
-                <textarea id="comment-input" class="add-form-text" placeholder="Введите ваш коментарий" rows="4"></textarea>
-                <div class="add-form-row">
-                    <button id="button-click" class="add-form-button">Написать</button>
-                </div>
-            </div>`
+        listElement.innerHTML = commenntatorsHtml
+
 
         this.buttonElement = document.getElementById("button-click")
         this.ulElement = document.getElementById("comment-ul")
@@ -166,7 +176,5 @@ export const DOM = {
 
         this.initLikeListener()
         this.clickOnComment()
-
-        this.handleButtonClick()
     },
 }
