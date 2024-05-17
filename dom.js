@@ -2,8 +2,6 @@ import { API } from "./api.js"
 import { renderLogin } from "./login.js"
 import { format } from "date-fns"
 
-
-
 export const DOM = {
     buttonElement: document.getElementById("button-click"),
     ulElement: document.getElementById("comment-ul"),
@@ -127,7 +125,6 @@ export const DOM = {
                 this.renderForm()
             })
     },
-    
 
     renderForm() {
         const form = document.querySelector(".form")
@@ -147,7 +144,6 @@ export const DOM = {
         const listElement = document.getElementById('comment-ul')
         const commenntatorsHtml = this.commentators.map((commentator, index) => {
             const createDate = format(new Date(commentator.created_at), "yyyy-MM-dd hh:mm:ss");
-            console.log(createDate);
             return `<li class="comment">
               <div class="comment-header">
                 <div>Максим (${commentator.name})</div>
