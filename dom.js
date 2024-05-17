@@ -104,13 +104,13 @@ export const DOM = {
         })
     },
 
+
     handleAuthButtonClick() {
         const authButton = document.getElementById("auth-button")
         authButton.addEventListener("click", (event) => {
             event.preventDefault()
             renderLogin()
         })
-
     },
 
     renderApp() {
