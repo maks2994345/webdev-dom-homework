@@ -1,5 +1,6 @@
 import { API } from "./api.js"
 import { renderLogin } from "./login.js"
+import { format } from "date-fns"
 
 
 export const DOM = {
@@ -141,13 +142,12 @@ export const DOM = {
     },
 
     renderCommentators() {
-
         const listElement = document.getElementById('comment-ul')
         const commenntatorsHtml = this.commentators.map((commentator, index) => {
             return `<li class="comment">
               <div class="comment-header">
                 <div>Максим (${commentator.name})</div>
-                <div>${commentator.date}</div>
+                <div>${createDate}</div>
               </div>
               <div class="comment-body">
                 <div class="comment-text" data-comment="${index}">
