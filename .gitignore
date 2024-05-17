@@ -1,0 +1,4 @@
+.idea/
+node_modules/
+.eslintrc.cjs
+package-lock.json
