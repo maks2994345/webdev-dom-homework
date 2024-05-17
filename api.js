@@ -1,66 +1,86 @@
-const apiLink = "https://wedev-api.sky.pro/api/v2/maksim-ananin/comments";
 
-//let password = prompt('Введите пароль')
 
-export function getTodos() {
-    let status = 0
+export const API = {
+    apiLink: "https://wedev-api.sky.pro/api/v2/maksim-ananin/comments",
+    userLink: "https://wedev-api.sky.pro/api/user/login",
+    user: null,
 
-    return fetch(apiLink, {
-        // headers: {
-        //     Authorization: `Bearer 123`,
-        // },
-    })
-        .then((response) => {
-            status = response.status
+    token: "",
 
-            return response.json()
+    getComments() {
+        let status = 0
+
+        return fetch(this.apiLink, {
+            headers: {
+                Authorization: `Bearer ${this.token}`,
+            },
         })
-        .then((data) => {
-            if (status >= 400) {
-                alert(data.error)
-                //password = prompt('Введите корректный пароль')
-                //getTodos()
-                throw new Error(data.error)
-            }
+            .then((response) => {
+                status = response.status
 
-            return data
+                return response.json()
+            })
+            .then((data) => {
+                if (status >= 400) {
+                    alert(data.error)
+                    throw new Error(data.error)
+                }
+
+                return data
+            })
+    },
+
+    postComment(name, text) {
+        let status = 0
+
+        return fetch(this.apiLink, {
+            method: "POST",
+            body: JSON.stringify({
+                text: text,
+                name: name,
+            }),
+            headers: {
+                Authorization: `Bearer ${this.token}`,
+            },
         })
-}
+            .then((response) => {
+                status = response.status
 
-export function postTodo({ name, text }) {
-    let status = 0
+                return response.json()
+            })
+            .then((data) => {
+                if (status >= 400) {
+                    alert(data.error)
+                    throw new Error(data.error)
+                }
 
-    return fetch(apiLink, {
-        method: "POST",
-        body: JSON.stringify({
-            text: text,
-            name: name,
-            forceError: false,
-        }),
-        headers: {
-            Authorization: `Bearer 123`,
-        },
-    })
-    .then((response) => {
-        status = response.status
+                return data
+            })
+    },
 
-        return response.json()
-    })
-        .then((data) => {
-            if (status >= 400) {
-                alert(data.error)
-                throw new Error(data.error)
-            }
+    login( {login, password} ) {
+        let status = 0
 
-            // if (status === 400) {
-            //     alert('Минимальное количество имени и комментария 3 символа');
-            //     throw new Error('Некорректные данные');
-            // }
-            // else if (status === 500) {
-            //     alert('Сервер не работает');
-            //     throw new Error('Ошибка сервера')
-            // }
-            
-            return data
+        return fetch(this.userLink, {
+            method: "POST",
+            body: JSON.stringify({
+                login,
+                password,
+            }),
         })
+            .then((response) => {
+                status = response.status
+
+                return response.json()
+            })
+            .then((data) => {
+                if (status >= 400) {
+                    alert(data.error)
+                    throw new Error(data.error)
+                }
+                this.user = data
+                this.token = data.user.token
+                return data
+            })
+    },
 }
