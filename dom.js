@@ -21,7 +21,9 @@ export const DOM = {
                     return {
                         name: comment.author.name,
                         comment: comment.text,
+
                         date: new Date(comment.date),
+
                         likes: comment.likes,
                         isLiked: comment.isLiked,
                     }
@@ -178,4 +180,3 @@ export const DOM = {
         this.clickOnComment()
     },
 }
-
