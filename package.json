@@ -8,7 +8,6 @@
   "description": "https://glebkaf.github.io/webdev-dom-homework/",
   "main": "main.js",
   "dependencies": {
-
   },
   "scripts": {
     "dev": "webpack --mode development --watch"
