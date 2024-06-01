@@ -8,6 +8,7 @@
   "description": "https://glebkaf.github.io/webdev-dom-homework/",
   "main": "main.js",
   "dependencies": {
+    "date-fns": "^3.6.0"
   },
   "scripts": {
     "dev": "webpack --mode development --watch"
@@ -15,4 +16,3 @@
   "author": "maks",
   "license": "ISC"
 }
-
