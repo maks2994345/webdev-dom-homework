@@ -1,4 +1,3 @@
-
 export const API = {
     apiLink: "https://wedev-api.sky.pro/api/v2/maksim-ananin/comments",
     userLink: "https://wedev-api.sky.pro/api/user/login",
